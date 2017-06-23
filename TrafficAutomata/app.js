@@ -93,15 +93,43 @@ var INITIALIZE = function () {
 var Look = function (current, next) {
 	var dist = (next.pos - current.pos) % ROAD_LENGTH;
 	var spd = current.vel;
-	var spd_nxt = next.vel;
-	if (spd === 0 && dist > 1 && current.wait = false) {
+	var spd_next = next.vel;
+	//stopped and already waited to advance after space opened up
+	if (spd === 0 && dist > 1 && current.wait === true) {
+		current.vel = 1;
+		current.wait = false;
+	}
+	//stopped and space opens up, haven't yet waited
+	else if (spd === 0 && dist > 1 && current.wait === false) {
 		var check1 = rng.random();
 		current.wait = check1 < pSLOW;
+		current.vel = current.wait ? 0: 1; //advances speed only if wait check fails
 	}
-	if (dist <= spd && (spd < spd_nxt || spd <= 2)) {
-		current.vel = dist - 1; //test
+	//slowing down when next car is very close or moving faster than current
+	else if (dist <= spd && (spd < spd_next || spd <= 2)) {
+		current.vel = dist - 1;
 	}
-
+	//slowing down when next car is slower or same speed as current, or close and current car is moving fast
+	else if (dist <= spd) {
+		current.vel = ((dist - 1) < (spd - 2)) ? dist - 1 : spd - 2;
+	}
+	//slowing down when next car is far but stopped or moving much slower than current
+	else if (spd < dist && dist <= 2*spd && spd >= spd_next + 4) {
+		current.vel = spd - 2;
+	}
+	//slowing down, next car is far but moving slower than current
+	else if (spd < dist && dist <= 2*spd && spd_next + 2 <= spd && spd <= spd_next + 3) {
+		current.vel = spd - 1;
+	}
+	//next car is far enough ahead or moving fast enough, current accelerates towards speed limit
+	else if (spd < vMAX && dist > spd + 1) {
+		current.vel++;
+	}
+	//random deceleration, simulating driver error and road conditions
+	if (current.vel > 0) {
+		var check2 = rng.random();
+		current.vel -= (check2 < pFAULT) 1 : 0;
+	}
 };
 
 //Moves all cars forward according to their new velocity
