@@ -94,12 +94,12 @@ var Look = function (current, next) {
 	var dist = (next.pos - current.pos) % ROAD_LENGTH;
 	var spd = current.vel;
 	var spd_nxt = next.vel;
-	if ((spd === 0) && (dist > 1) && (current.wait = false)) {
+	if (spd === 0 && dist > 1 && current.wait = false) {
 		var check1 = rng.random();
-		current.wait = (check1 < pSLOW) ? true : false;
+		current.wait = check1 < pSLOW;
 	}
-	if ((dist <= spd) && ((spd < spd_nxt) || (spd <= 2))) {
-		
+	if (dist <= spd && (spd < spd_nxt || spd <= 2)) {
+		current.vel = dist - 1; //test
 	}
 
 };
