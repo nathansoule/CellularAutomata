@@ -139,9 +139,12 @@ var Move = function (road) {
 	}
 };
 
-var Time_Step = function () {
-
-
+//Updates velocity for all cars, then advances each car
+var Time_Step = function (the_Road) {
+	for (var i = 0; i < ROAD_LENGTH - 1; i++) {
+		Look(the_Road[i], the_Road[i + 1]);
+	}
+	Move(the_Road);
 
 };
 
