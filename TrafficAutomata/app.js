@@ -5,6 +5,7 @@ var rng = (function () {
 	var WellImplementation = new WellRNG();
 	return new RandomNumberGenerator(()=>WellImplementation.random());
 })();
+var Clone = require('clone');
 
 
 //Initialize global constants
@@ -62,11 +63,8 @@ var INITIALIZE = function () {
 		output.push({ vel: 1, wait: false });
 	}
 
-	//make last element refrence to first element
-	output.push(output[0]);
-
 	//tmp_position initialized to array of the road locations, then shuffled
-	var start_positions = new Array();
+	var start_positions = [];
 	for (i = 0; i < ROAD_LENGTH; i++) {
 		start_positions.push(i);
 	}
@@ -82,29 +80,67 @@ var INITIALIZE = function () {
 
 	for (i = 0; i < num_of_cars; i++) {
 		output[i].pos = start_positions[i];
-
 	}
 	return output;
 };
 
+
+
 /**
- * @param {Object} current Is a car
- * @param {Object} next Is the next car
+ * function moves all object on road
+ * @param {Object[]} cars
  */
-var Look = function (current, next) {
-	var dist = (next.pos - current.pos) % ROAD_LENGTH;
+var Move = function (cars, roadLength) {
+	for (var i = 0; i < cars.length; i++) {
+		cars[i].pos = (cars[i].pos + cars[i].vel) % roadLength;
+	}
+};
+
+/**
+ *
+ * @param {Object[]} startRoadState Expects a function that generates a road object. Road object format is documented in README
+ * @param {Number} vMax Maximum speed of any car
+ * @param {Number} pFault 
+ * @param {Number} pSlow
+ * @param {Number} roadLength Length of road
+ * @param {Number} steps
+ */
+function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps) {
+	var cars = Clone(startRoadState, false);
+	var numOfCars = cars.length;
+
+	for (var s = 0; s < steps; s++) {
+		for (var i = 0; i < numOfCars; i++) {
+			//sets new speed on each car
+			setSpeed(cars[i], cars[(i + 1) % numOfCars], vMax, pFault, pSlow, roadLength);
+		}
+		//moves car by new speed
+		Move(cars, roadLength);
+	}
+	return cars;
+}
+
+/**
+	* @param {Object} current Is a car
+	* @param {Object} next Is the next car
+ * @param {Number} pFault
+ * @param {Number} pSlow
+ * @param {Number} roadLength Length of road
+	*/
+function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
+	var dist = ((next.pos - current.pos) + roadLength) % roadLength;
 	var spd = current.vel;
 	var spd_next = next.vel;
 	//stopped and already waited to advance after space opened up
-	if (spd === 0 && dist > 1 && current.wait === true) {
+	if (spd === 0 && dist > 1 && current.wait) {
 		current.vel = 1;
 		current.wait = false;
 	}
 	//stopped and space opens up, haven't yet waited
-	else if (spd === 0 && dist > 1 && current.wait === false) {
+	else if (spd === 0 && dist > 1 && !current.wait) {
 		var check1 = rng.random();
-		current.wait = check1 < pSLOW;
-		current.vel = current.wait ? 0: 1; //advances speed only if wait check fails
+		current.wait = check1 < pSlow;
+		current.vel = current.wait ? 0 : 1; //advances speed only if wait check fails
 	}
 	//slowing down when next car is very close or moving faster than current
 	else if (dist <= spd && (spd < spd_next || spd <= 2)) {
@@ -115,42 +151,60 @@ var Look = function (current, next) {
 		current.vel = ((dist - 1) < (spd - 2)) ? dist - 1 : spd - 2;
 	}
 	//slowing down when next car is far but stopped or moving much slower than current
-	else if (spd < dist && dist <= 2*spd && spd >= spd_next + 4) {
+	else if (spd < dist && dist <= 2 * spd && spd >= spd_next + 4) {
 		current.vel = spd - 2;
 	}
 	//slowing down, next car is far but moving slower than current
-	else if (spd < dist && dist <= 2*spd && spd_next + 2 <= spd && spd <= spd_next + 3) {
+	else if (spd < dist && dist <= 2 * spd && spd_next + 2 <= spd && spd <= spd_next + 3) {
 		current.vel = spd - 1;
 	}
 	//next car is far enough ahead or moving fast enough, current accelerates towards speed limit
-	else if (spd < vMAX && dist > spd + 1) {
+	else if (spd < vMax && dist > spd + 1) {
 		current.vel++;
 	}
 	//random deceleration, simulating driver error and road conditions
 	if (current.vel > 0) {
 		var check2 = rng.random();
-		current.vel -= (check2 < pFAULT) ? 1 : 0;
+		current.vel -= (check2 < pFault) ? 1 : 0;
 	}
-};
+}
+
+
+var history = [INITIALIZE()];
+while (history.length < 25) {
+    history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+}
+history.push('jumping 1000 steps now')
+history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000));
+while (history.length < 51) {
+    history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+}
+print(history, ROAD_LENGTH);
+
 
 /**
- * function moves all object on road
- * @param {Object[]} road
+ * Prints all data passed in
+ * @param {Object[][]} data an array of road states and strings, strings are used as messages to be printed
  */
-var Move = function (road) {
-	for (var i = 0; i < ROAD_LENGTH - 1; i++) {
-		road[i].pos = (road[i].pos + road[i].vel) % ROAD_LENGTH;
-	}
-};
-
-/**
- * Updates velocity for all cars, then advances each car
- * @param {Object[]} road
- */
-var Time_Step = function (road) {
-	for (var i = 0; i < ROAD_LENGTH - 1; i++) {
-		Look(road[i], road[i + 1]);
-	}
-	Move(road);
-};
-
+function print(data, roadLen) {
+    dataLen = data.length;
+    for (var i = 0; i < dataLen; i++) {
+        if (data[i].constructor === Array) { 
+			var current = [];
+			for (var j = 0; j < data[i].length; j++) {
+				current[data[i][j].pos] = data[i][j].vel;
+			}
+			var output = '';
+			for (var j = 0; j < roadLen; j++) {
+				if (typeof current[j] !== 'number')
+					output += '_';
+				else
+					output += current[j];
+			}
+			console.log(output);
+        }
+        else if (typeof data[i] === 'string') {
+            console.log(data[i]);
+        }
+    }
+}

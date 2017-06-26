@@ -7,6 +7,7 @@
     "name": "soule"
   },
   "dependencies": {
+    "clone": "^2.1.1",
     "rng-js": "^1.0.1",
     "well-rng": "^1.0.1"
   }
