@@ -3,7 +3,7 @@ var rng = (function () {
 	var WellRNG = require("well-rng");
 
 	var WellImplementation = new WellRNG();
-	return new RandomNumberGenerator(()=>WellImplementation.random());
+	return new RandomNumberGenerator(() => WellImplementation.random());
 })();
 var Clone = require('clone');
 
@@ -60,7 +60,7 @@ var INITIALIZE = function () {
 	var output = [];
 	var num_of_cars = DENSITY * ROAD_LENGTH;
 	for (var i = 0; i < num_of_cars; i++) {
-		output.push({ vel: 1, wait: false });
+		output.push({vel: 1, wait: false});
 	}
 
 	//tmp_position initialized to array of the road locations, then shuffled
@@ -89,6 +89,7 @@ var INITIALIZE = function () {
 /**
  * function moves all object on road
  * @param {Object[]} cars
+ * @param {Number} roadLength the length of the road
  */
 var Move = function (cars, roadLength) {
 	for (var i = 0; i < cars.length; i++) {
@@ -100,7 +101,7 @@ var Move = function (cars, roadLength) {
  *
  * @param {Object[]} startRoadState Expects a function that generates a road object. Road object format is documented in README
  * @param {Number} vMax Maximum speed of any car
- * @param {Number} pFault 
+ * @param {Number} pFault
  * @param {Number} pSlow
  * @param {Number} roadLength Length of road
  * @param {Number} steps
@@ -121,12 +122,13 @@ function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps) {
 }
 
 /**
-	* @param {Object} current Is a car
-	* @param {Object} next Is the next car
+ * @param {Object} current Is a car
+ * @param {Object} next Is the next car
+ * @param {Number} vMax maximum velocity of a car
  * @param {Number} pFault
  * @param {Number} pSlow
  * @param {Number} roadLength Length of road
-	*/
+ */
 function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 	var dist = ((next.pos - current.pos) + roadLength) % roadLength;
 	var spd = current.vel;
@@ -172,12 +174,12 @@ function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 
 var history = [INITIALIZE()];
 while (history.length < 25) {
-    history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
 }
-history.push('jumping 1000 steps now')
+history.push('jumping 1000 steps now');
 history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000));
 while (history.length < 51) {
-    history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
 }
 print(history, ROAD_LENGTH);
 
@@ -185,11 +187,12 @@ print(history, ROAD_LENGTH);
 /**
  * Prints all data passed in
  * @param {Object[][]} data an array of road states and strings, strings are used as messages to be printed
+ * @param {Number} roadLen length of the road
  */
 function print(data, roadLen) {
-    dataLen = data.length;
-    for (var i = 0; i < dataLen; i++) {
-        if (data[i].constructor === Array) { 
+	dataLen = data.length;
+	for (var i = 0; i < dataLen; i++) {
+		if (data[i].constructor === Array) {
 			var current = [];
 			for (var j = 0; j < data[i].length; j++) {
 				current[data[i][j].pos] = data[i][j].vel;
@@ -202,9 +205,8 @@ function print(data, roadLen) {
 					output += current[j];
 			}
 			console.log(output);
-        }
-        else if (typeof data[i] === 'string') {
-            console.log(data[i]);
-        }
-    }
+		} else if (typeof data[i] === 'string') {
+			console.log(data[i]);
+		}
+	}
 }
