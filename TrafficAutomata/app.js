@@ -3,9 +3,7 @@ var rng = (function () {
 	var WellRNG = require("well-rng");
 
 	var WellImplementation = new WellRNG();
-	return new RandomNumberGenerator(function () {
-		return WellImplementation.random();
-	});
+	return new RandomNumberGenerator(()=>WellImplementation.random());
 })();
 
 
@@ -53,7 +51,7 @@ var shuffle = function (arr) {
 /**
  * Initializes a random road with DENSITY * ROAD_LENGTH cars.
  *
- * @returns {[Object]} Objects have fields: vel {Number}, pos {Number}, wait {Boolean}
+ * @returns {Object[]} Objects have fields: vel {Number}, pos {Number}, wait {Boolean}
  */
 var INITIALIZE = function () {
 	//postcondition: output[] is an array of length DENSITY*ROADLENGTH + 1 cars. Velocities initialized to 1.
@@ -89,7 +87,10 @@ var INITIALIZE = function () {
 	return output;
 };
 
-//Updates each car's velocity
+/**
+ * @param {Object} current Is a car
+ * @param {Object} next Is the next car
+ */
 var Look = function (current, next) {
 	var dist = (next.pos - current.pos) % ROAD_LENGTH;
 	var spd = current.vel;
@@ -128,23 +129,28 @@ var Look = function (current, next) {
 	//random deceleration, simulating driver error and road conditions
 	if (current.vel > 0) {
 		var check2 = rng.random();
-		current.vel -= (check2 < pFAULT) 1 : 0;
+		current.vel -= (check2 < pFAULT) ? 1 : 0;
 	}
 };
 
-//Moves all cars forward according to their new velocity
+/**
+ * function moves all object on road
+ * @param {Object[]} road
+ */
 var Move = function (road) {
 	for (var i = 0; i < ROAD_LENGTH - 1; i++) {
 		road[i].pos = (road[i].pos + road[i].vel) % ROAD_LENGTH;
 	}
 };
 
-//Updates velocity for all cars, then advances each car
-var Time_Step = function (the_Road) {
+/**
+ * Updates velocity for all cars, then advances each car
+ * @param {Object[]} road
+ */
+var Time_Step = function (road) {
 	for (var i = 0; i < ROAD_LENGTH - 1; i++) {
-		Look(the_Road[i], the_Road[i + 1]);
+		Look(road[i], road[i + 1]);
 	}
-	Move(the_Road);
-
+	Move(road);
 };
 
