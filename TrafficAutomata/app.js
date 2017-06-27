@@ -85,7 +85,6 @@ var INITIALIZE = function () {
 };
 
 
-
 /**
  * function moves all object on road
  * @param {Object[]} cars
