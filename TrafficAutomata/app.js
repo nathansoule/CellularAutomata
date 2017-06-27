@@ -12,8 +12,8 @@ var Clone = require('clone');
 const vMAX = 5;
 const pFAULT = 0.1;
 const pSLOW = 0.5;
-const ROAD_LENGTH = 50;
-const DENSITY = 0.2;
+const ROAD_LENGTH = 100;
+const DENSITY = 0.15;
 
 /**
  * This takes two indicies and swaps them. While the JSDoc says String or Number for input, what is really meant is any sort of index for the object being called on. It then swaps the valeus of the two indicies.
@@ -171,12 +171,7 @@ function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 
 
 var history = [INITIALIZE()];
-while (history.length < 25) {
-    history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
-}
-history.push('jumping 1000 steps now')
-history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000));
-while (history.length < 51) {
+while (history.length < 10000) {
     history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
 }
 print(history, ROAD_LENGTH);
