@@ -100,10 +100,10 @@ var Move = function (cars, roadLength) {
  *
  * @param {Object[]} startRoadState Expects a function that generates a road object. Road object format is documented in README
  * @param {Number} vMax Maximum speed of any car
- * @param {Number} pFault
- * @param {Number} pSlow
+ * @param {Number} pFault Probability to randomly slow down on a given time step. This simulates driver error and differing road conditions
+ * @param {Number} pSlow Probability to delay starting for one time step when a car is stopped and space opens up
  * @param {Number} roadLength Length of road
- * @param {Number} steps
+ * @param {Number} steps Length of time
  */
 function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps) {
 	var cars = Clone(startRoadState, false);
