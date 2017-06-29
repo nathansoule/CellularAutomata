@@ -87,7 +87,7 @@ var INITIALIZE = function () {
 
 /**
  * function moves all object on road
- * @param {Object[]} cars
+ * @param {Object[]} cars array of car objects, represents all data of current road
  * @param {Number} roadLength the length of the road
  */
 var Move = function (cars, roadLength) {
@@ -124,8 +124,8 @@ function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps) {
  * @param {Object} current Is a car
  * @param {Object} next Is the next car
  * @param {Number} vMax maximum velocity of a car
- * @param {Number} pFault
- * @param {Number} pSlow
+ * @param {Number} pFault Probability to randomly slow down on a given time step. This simulates driver error and differing road conditions
+ * @param {Number} pSlow Probability to delay starting for one time step when a car is stopped and space opens up
  * @param {Number} roadLength Length of road
  */
 function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
