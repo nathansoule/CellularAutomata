@@ -20,7 +20,7 @@ const DENSITY = 0.2;
  *
  * @param {String|Number} x
  * @param {String|Number} y
- * @returns {Object} this
+ * @returns {Array} this
  */
 Object.prototype.swap = function (x, y) {
 	var b = this[x];
@@ -171,6 +171,17 @@ function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 }
 
 
+var history = [INITIALIZE()];
+while (history.length < 25) {
+	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+}
+history.push('jumping 1000 steps now');
+history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000));
+while (history.length < 51) {
+	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+}
+print(history, ROAD_LENGTH);
+
 
 /**
  * Prints all data passed in
@@ -198,3 +209,6 @@ function print(data, roadLen) {
 		}
 	}
 }
+
+
+
