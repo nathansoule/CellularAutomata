@@ -48,16 +48,10 @@ var shuffle = function (arr) {
 	}
 	return arr;
 };
-
-//Stores travel data for a subset of the road
-var SAMPLE = [];
-
-
 /**
  * Initializes a random road with DENSITY * ROAD_LENGTH cars.
  *
  * @returns {Object[]} Objects have fields: vel {Number}, pos {Number}, wait {Boolean}
- * edits {SAMPLE[]} samples have fields: plate {Number}, TotalDist {Number}
  */
 var INITIALIZE = function () {
 	//postcondition: output[] is an array of length DENSITY*ROADLENGTH + 1 cars. Velocities initialized to 1.
@@ -86,16 +80,26 @@ var INITIALIZE = function () {
 	for (i = 0; i < num_of_cars; i++) {
 		output[i].pos = start_positions[i];
 	}
-
-	//selects num_of_cars * DENSITY cars for measurement, roughly equally spaced and stores their number in SAMPLE[]
-	//plate denotes the car's location in the road array
-	var sample_size = Math.floor(num_of_cars * DENSITY);
-	for (i = 0; i < sample_size; i++) {
-		SAMPLE.push({plate: i + sample_size, TotalDist: 0})
-	}
 	return output;
 };
 
+/**
+ * Initializes array for recording distance data
+ * @param {Object[]} cars array of car objects, represents all data of current road
+ * @returns {Object[]} Object has fields: plate {Number}, TotalDist {Number}
+ */
+function INITIALIZE_SAMPLE(cars) {
+	var output = [];
+	//selects num_of_cars * DENSITY cars for measurement, roughly equally spaced and stores their number in SAMPLE[]
+	//plate denotes the car's location in the road array
+	var num_of_cars = DENSITY * ROAD_LENGTH;
+	var sample_size = Math.floor(num_of_cars * DENSITY);
+	var spacing = Math.floor(num_of_cars / sample_size);
+	for (var i = 0; i < sample_size; i++) {
+		output.push({ plate: i * spacing, TotalDist: 0 });
+	}
+	return output;
+}
 
 /**
  * function moves all object on road
@@ -108,7 +112,12 @@ var Move = function (cars, roadLength) {
 	}
 };
 
-var Record = function (SAMPLE, cars) {
+/**
+ * Records the distance traveled by a sample of cars for one time step
+ * @param {Object[][]} SAMPLE an array of indicies for car objects, and total distances
+ * @param {Object[][]} cars array of car objects, representing current road
+ */
+function Record (SAMPLE, cars) {
 	//appends travel data for cars in SAMPLE[]
 	for (i = 0; i < SAMPLE.length; i++) {
 		SAMPLE[i].TotalDist += cars[SAMPLE[i].plate].vel;
@@ -123,6 +132,7 @@ var Record = function (SAMPLE, cars) {
  * @param {Number} pSlow Probability to delay starting for one time step when a car is stopped and space opens up
  * @param {Number} roadLength Length of road
  * @param {Number} steps Length of time
+ * @param {Boolean} measure Whether current step will be recorded in SAMPLE, using function Record()
  */
 function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps, measure) {
 	var cars = Clone(startRoadState, false);
@@ -194,6 +204,7 @@ function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 
 
 var history = [INITIALIZE()];
+var SAMPLE = INITIALIZE_SAMPLE(history[0]);
 while (history.length < 25) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, false));
 }
@@ -203,7 +214,7 @@ while (history.length < 51) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, true));
 }
 print(history, ROAD_LENGTH);
-
+print_dist_data(SAMPLE, ROAD_LENGTH, 50);
 
 /**
  * Prints all data passed in
@@ -232,7 +243,27 @@ function print(data, roadLen) {
 	}
 }
 
-function print_dist_data(SAMPLE) {
-
+/**
+ * Prints record of Total distances and avg speeds for steps 1000 - 1050
+ * @param {Object[][]} data an array of positions and total distances
+ * @param {Number} roadLen length of road 
+ * @param {Number} sampleTime number of time steps that were recorded
+ */
+function print_dist_data(data, roadLen, sampleTime) {
+	dataLen = data.length;
+	console.log('Now printing distance and average velocity data for last ');
+	console.log(sampleTime);
+	console.log(' time steps.');
+	for (var i = 0; i < dataLen; i++) {
+		var avg_vel = data[i].TotalDist / sampleTime;
+		var output = '';
+		output += 'Car #';
+		output += data[i].plate;
+		output += ' traveled ';
+		output += data[i].TotalDist;
+		output += ' units, at an average velocity of ';
+		output += avg_vel;
+		console.log(output);
+	}
 }
 
