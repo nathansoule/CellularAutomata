@@ -49,10 +49,15 @@ var shuffle = function (arr) {
 	return arr;
 };
 
+//Stores travel data for a subset of the road
+var SAMPLE = [];
+
+
 /**
  * Initializes a random road with DENSITY * ROAD_LENGTH cars.
  *
  * @returns {Object[]} Objects have fields: vel {Number}, pos {Number}, wait {Boolean}
+ * edits {SAMPLE[]} samples have fields: plate {Number}, TotalDist {Number}
  */
 var INITIALIZE = function () {
 	//postcondition: output[] is an array of length DENSITY*ROADLENGTH + 1 cars. Velocities initialized to 1.
@@ -81,6 +86,13 @@ var INITIALIZE = function () {
 	for (i = 0; i < num_of_cars; i++) {
 		output[i].pos = start_positions[i];
 	}
+
+	//selects num_of_cars * DENSITY cars for measurement, roughly equally spaced and stores their number in SAMPLE[]
+	//plate denotes the car's location in the road array
+	var sample_size = Math.floor(num_of_cars * DENSITY);
+	for (i = 0; i < sample_size; i++) {
+		SAMPLE.push({plate: i + sample_size, TotalDist: 0})
+	}
 	return output;
 };
 
@@ -96,6 +108,13 @@ var Move = function (cars, roadLength) {
 	}
 };
 
+var Record = function (SAMPLE, cars) {
+	//appends travel data for cars in SAMPLE[]
+	for (i = 0; i < SAMPLE.length; i++) {
+		SAMPLE[i].TotalDist += cars[SAMPLE[i].plate].vel;
+	}
+}
+
 /**
  *
  * @param {Object[]} startRoadState Expects a function that generates a road object. Road object format is documented in README
@@ -105,7 +124,7 @@ var Move = function (cars, roadLength) {
  * @param {Number} roadLength Length of road
  * @param {Number} steps Length of time
  */
-function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps) {
+function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps, measure) {
 	var cars = Clone(startRoadState, false);
 	var numOfCars = cars.length;
 
@@ -116,6 +135,9 @@ function Run(startRoadState, vMax, pFault, pSlow, roadLength, steps) {
 		}
 		//moves car by new speed
 		Move(cars, roadLength);
+		if (measure === true) {
+			Record(SAMPLE, cars);
+		}
 	}
 	return cars;
 }
@@ -173,12 +195,12 @@ function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 
 var history = [INITIALIZE()];
 while (history.length < 25) {
-	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, false));
 }
 history.push('jumping 1000 steps now');
-history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000));
+history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000, false));
 while (history.length < 51) {
-	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, true));
 }
 print(history, ROAD_LENGTH);
 
@@ -210,5 +232,7 @@ function print(data, roadLen) {
 	}
 }
 
+function print_dist_data(SAMPLE) {
 
+}
 
