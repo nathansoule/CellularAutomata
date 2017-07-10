@@ -20,7 +20,7 @@ const DENSITY = 0.2;
  *
  * @param {String|Number} x
  * @param {String|Number} y
- * @returns {Array} this
+ * @returns {Object} this
  */
 Object.prototype.swap = function (x, y) {
 	var b = this[x];
