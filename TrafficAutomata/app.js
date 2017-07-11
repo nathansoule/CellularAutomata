@@ -9,11 +9,10 @@ var Clone = require('clone');
 
 
 //Initialize global constants
-const vMAX = 5;
+const maxVelocity = 5;
 const pFAULT = 0.1;
 const pSLOW = 0.5;
 const ROAD_LENGTH = 50;
-const DENSITY = 0.2;
 
 /**
  * This takes two indicies and swaps them. While the JSDoc says String or Number for input, what is really meant is any sort of index for the object being called on. It then swaps the valeus of the two indicies.
@@ -54,11 +53,11 @@ var shuffle = function (arr) {
  *
  * @returns {Object[]} Objects have fields: vel {Number}, pos {Number}, wait {Boolean}
  */
-var INITIALIZE = function () {
+var INITIALIZE = function (density, isDensity=true) {
 	//postcondition: output[] is an array of length DENSITY*ROADLENGTH + 1 cars. Velocities initialized to 1.
 	//The last item is a copy of the first car, to simplify velocity update loops.*/
 	var output = [];
-	var num_of_cars = DENSITY * ROAD_LENGTH;
+	var num_of_cars = isDensity ? Math.round(density * ROAD_LENGTH) : density;
 	for (var i = 0; i < num_of_cars; i++) {
 		output.push({vel: 1, wait: false});
 	}
@@ -95,6 +94,7 @@ var Move = function (cars, roadLength) {
 		cars[i].pos = (cars[i].pos + cars[i].vel) % roadLength;
 	}
 };
+
 
 /**
  *
@@ -170,17 +170,37 @@ function setSpeed(current, next, vMax, pFault, pSlow, roadLength) {
 	}
 }
 
+for (var i = 2; i < ROAD_LENGTH; i ++) {
+	var history = [Run(INITIALIZE(i, false), maxVelocity, pFAULT, pSLOW, ROAD_LENGTH, 1000)];
+	for (var j = 1; j < 250; j++) {
+		history.push(Run(history[history.length - 1], maxVelocity, pFAULT, pSLOW, ROAD_LENGTH, 1000));
+	}
+	console.log(i + ' : ' + passPoint(history, ROAD_LENGTH) + '\t' + totalMovement(history));
+}
 
-var history = [INITIALIZE()];
-while (history.length < 25) {
-	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+function passPoint(data, roadLen) {
+	var output = 0;
+	for (var i = data.length-1; i >= 0; i--) {
+		var current = data[i];
+		for (var j = current.length-1; j >= 0; j--) {
+			if (current[j].vel + current[j].pos >= roadLen) {
+				output++;
+			}
+		}
+	}
+	return output;
 }
-history.push('jumping 1000 steps now');
-history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000));
-while (history.length < 51) {
-	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1));
+
+function totalMovement(data) {
+	var output = 0;
+	for (var i = data.length-1; i >= 0; i--) {
+		var current = data[i];
+		for (var j = current.length - 1; i >= 0; i--) {
+			output += current[j].vel;
+		}
+	}
+	return output;
 }
-print(history, ROAD_LENGTH);
 
 
 /**
