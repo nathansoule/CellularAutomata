@@ -11,7 +11,7 @@ var Clone = require('clone');
 //Initialize global constants
 const maxVelocity = 5;
 const pFAULT = 0.1;
-const pSLOW = 0.5;
+const pSLOW = 0.2;
 const ROAD_LENGTH = 50;
 
 /**
