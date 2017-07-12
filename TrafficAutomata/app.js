@@ -12,10 +12,10 @@ var Clone = require('clone');
 const vMAX = 5;
 const pFAULT = 0.1;
 const pSLOW = 0.2;
-const ROAD_LENGTH = 50;
+const ROAD_LENGTH = 100;
 const DENSITY = 0.2;
-const RAMP_TIME = 1000;
-const SAMPLE_TIME = 100;
+const RAMP_TIME = 1000; //Run time to allow traffic to stabilize from starting position
+const SAMPLE_TIME = 100; //Length of time after ramp up that will be recorded for measurement
 
 /**
  * This takes two indicies and swaps them. While the JSDoc says String or Number for input, what is really meant is any sort of index for the object being called on. It then swaps the valeus of the two indicies.
@@ -210,7 +210,8 @@ var SAMPLE = INITIALIZE_SAMPLE(history[0]);
 while (history.length < 25) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, false));
 }
-history.push('jumping 1000 steps now');
+var message = 'jumping ' + RAMP_TIME + ' steps now';
+history.push(message);
 history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, RAMP_TIME, false));
 while (history.length < (26 + SAMPLE_TIME)) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, true));
