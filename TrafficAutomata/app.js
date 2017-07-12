@@ -216,7 +216,7 @@ while (history.length < (26 + SAMPLE_TIME)) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, true));
 }
 print(history, ROAD_LENGTH);
-print_dist_data(SAMPLE, ROAD_LENGTH, 25 + SAMPLE_TIME);
+print_dist_data(SAMPLE, ROAD_LENGTH, SAMPLE_TIME);
 
 /**
  * Prints all data passed in
