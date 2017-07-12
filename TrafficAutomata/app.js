@@ -94,7 +94,7 @@ function INITIALIZE_SAMPLE(cars) {
 	var output = [];
 	//selects num_of_cars * DENSITY cars for measurement, roughly equally spaced and stores their number in SAMPLE[]
 	//plate denotes the car's location in the road array
-	var num_of_cars = DENSITY * ROAD_LENGTH;
+	var num_of_cars = cars.length-1;
 	var sample_size = Math.floor(num_of_cars * DENSITY);
 	var spacing = Math.floor(num_of_cars / sample_size);
 	for (var i = 0; i < sample_size; i++) {
