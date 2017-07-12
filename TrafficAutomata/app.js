@@ -14,6 +14,8 @@ const pFAULT = 0.1;
 const pSLOW = 0.2;
 const ROAD_LENGTH = 50;
 const DENSITY = 0.2;
+const RAMP_TIME = 1000;
+const SAMPLE_TIME = 100;
 
 /**
  * This takes two indicies and swaps them. While the JSDoc says String or Number for input, what is really meant is any sort of index for the object being called on. It then swaps the valeus of the two indicies.
@@ -114,8 +116,8 @@ var Move = function (cars, roadLength) {
 
 /**
  * Records the distance traveled by a sample of cars for one time step
- * @param {Object[][]} SAMPLE an array of indicies for car objects, and total distances
- * @param {Object[][]} cars array of car objects, representing current road
+ * @param {Object[]} SAMPLE an array of sample car objects, with index in 'cars' array and total distances
+ * @param {Object[]} cars array of car objects, representing current road
  */
 function Record (SAMPLE, cars) {
 	//appends travel data for cars in SAMPLE[]
@@ -209,12 +211,12 @@ while (history.length < 25) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, false));
 }
 history.push('jumping 1000 steps now');
-history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1000, false));
-while (history.length < 51) {
+history.push(Run(history[history.length - 2], vMAX, pFAULT, pSLOW, ROAD_LENGTH, RAMP_TIME, false));
+while (history.length < (26 + SAMPLE_TIME)) {
 	history.push(Run(history[history.length - 1], vMAX, pFAULT, pSLOW, ROAD_LENGTH, 1, true));
 }
 print(history, ROAD_LENGTH);
-print_dist_data(SAMPLE, ROAD_LENGTH, 50);
+print_dist_data(SAMPLE, ROAD_LENGTH, 25 + SAMPLE_TIME);
 
 /**
  * Prints all data passed in
