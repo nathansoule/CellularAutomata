@@ -36,21 +36,25 @@ namespace TrafficGenerator
 		/// <summary>
 		/// Constructor, using constant probabilities
 		/// </summary>
-		/// <param name="initialRoadState">Array of cars representing the initial road state. The internal data will be instansiated as a copy of this Array.</param>
+		/// <param name="initialCarPositions">Array of cars representing the initial road state. The internal data will be instansiated as a copy of this Array.</param>
 		/// <param name="roadLength">Number of cells the road is long, or how large the circular road is.</param>
 		/// <param name="maxVelocity">The maximum velocity for a car</param>
 		/// <param name="faultProbability">The probability a car randomly slows down by 1</param>
 		/// <param name="slowProbability">The probability a stopped car waits a step before speeding up</param>
 		/// <param name="randomNumberGenerator">Random number generator</param>
-		public SlowToStop(Car[] initialRoadState, uint roadLength, uint maxVelocity, double faultProbability, double slowProbability, IGenerator randomNumberGenerator)
+		public SlowToStop(uint[] initialCarPositions, uint roadLength, uint maxVelocity, double faultProbability, double slowProbability, IGenerator randomNumberGenerator)
 		{
 			MaxVelocity = maxVelocity;
 			rand = new ContinuousUniformDistribution(randomNumberGenerator, 0, 1);
 			Time = 0;
 			RoadLength = roadLength;
-			cars = new Car[initialRoadState.Length + 1];
-			for (int i = 0; i < initialRoadState.Length; i++)
-				cars[i] = initialRoadState[i];
+			cars = new Car[initialCarPositions.Length + 1];
+			for (int i = 0; i < initialCarPositions.Length; i++)
+				cars[i] = new Car {
+					velocity = 1,
+					makeVelocityOne = false,
+					position = initialCarPositions[i]
+				};
 			FaultProbability = (a, b, c, d) => faultProbability;
 			SlowProbability = (a, b, c, d) => slowProbability;
 		}
