@@ -50,6 +50,7 @@ var shuffle = function (arr) {
 	}
 	return arr;
 };
+
 /**
  * Initializes a random road with DENSITY * ROAD_LENGTH cars.
  *
