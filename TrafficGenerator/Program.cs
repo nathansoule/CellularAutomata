@@ -12,7 +12,6 @@ namespace TrafficGenerator
 	{
 		static void Main(string[] args)
 		{
-			Rat r = new Rat(1001);
 		}
 	}
 }

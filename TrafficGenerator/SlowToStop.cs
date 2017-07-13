@@ -64,7 +64,7 @@ namespace TrafficGenerator
 
 		public uint MaxVelocity { get; }
 		public uint Time { get; }
-		private Car[] cars;
+		protected Car[] cars;
 
 		/// <summary>
 		/// Modifying values in this will not effect Cars inside the actual object. Reflection must be used in order to do that.
