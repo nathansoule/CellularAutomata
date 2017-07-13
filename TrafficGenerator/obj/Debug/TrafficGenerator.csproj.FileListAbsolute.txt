@@ -1,0 +1,12 @@
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\TrafficGenerator.exe.config
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\TrafficGenerator.exe
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\TrafficGenerator.pdb
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\PommaLabs.Thrower.dll
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\Troschuetz.Random.dll
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\PommaLabs.Thrower.pdb
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\PommaLabs.Thrower.xml
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\Troschuetz.Random.pdb
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\bin\Debug\Troschuetz.Random.xml
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\obj\Debug\TrafficGenerator.csprojResolveAssemblyReference.cache
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\obj\Debug\TrafficGenerator.exe
+C:\Users\Bendy\Source\Repos\CellularAutomata\TrafficGenerator\obj\Debug\TrafficGenerator.pdb

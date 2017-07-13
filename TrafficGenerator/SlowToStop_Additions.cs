@@ -8,9 +8,23 @@ namespace TrafficGenerator
 {
 	static class SlowToStop_Additions
 	{
-		public static string getStandardPrintout(this SlowToStop input)
+		/// <summary>
+		/// Get velocity printout of a single state as a string
+		/// </summary>
+		/// <param name="input">SlowToStop object to print</param>
+		/// <returns>String form with velocity of each car in it's position</returns>
+		public static string GetStandardOutput(this SlowToStop input)
 		{
-			return "";
+			if (input.MaxVelocity < 10) {
+				char[] road = new char[input.RoadLength];
+				for (int i = 0; i < road.Length; i++)
+					road[i] = ' ';
+				foreach (var car in input.Cars)
+					road[car.position] = (char)('0' + car.velocity);
+				return new string(road);
+			} else {
+				throw new NotImplementedException();
+			}
 		}
 	}
 }

@@ -112,6 +112,11 @@ namespace TrafficGenerator
 				if (cars[i].makeVelocityOne) {
 					cars[i].velocity = 1;
 					cars[i].makeVelocityOne = false;
+
+					//maybe?
+					cars[i].position++;
+					cars[i].position %= RoadLength;
+					continue;
 				} else if (cars[i].velocity == 0 && distance > 1) {
 					if (rand.NextDouble() < SlowProbability(cars[i], distance, nextVelocity, Time)) {
 						cars[i].makeVelocityOne = true;
@@ -130,7 +135,7 @@ namespace TrafficGenerator
 					} else if (cars[i].velocity >= nextVelocity + 2) {
 						cars[i].velocity--;
 					} else {
-						if (cars[i].velocity < MaxVelocity)
+						if (cars[i].velocity < MaxVelocity && distance > cars[i].velocity + 1)
 							cars[i].velocity++;
 					}
 				} else {
@@ -143,6 +148,7 @@ namespace TrafficGenerator
 						cars[i].velocity--;
 
 				cars[i].position += cars[i].velocity;
+				cars[i].position %= RoadLength;
 			}
 
 			return this;
