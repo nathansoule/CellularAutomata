@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections;
+using System.IO;
 
 namespace TrafficGenerator
 {
@@ -12,11 +13,11 @@ namespace TrafficGenerator
 	{
 		static void Main(string[] args)
 		{
-			var cars = new uint[1000];
+			var cars = new uint[5];
 			for (var i = 0; i < cars.Length; i++) { cars[i] = (uint)i; }
-			SlowToStop simul = new SlowToStop(new Troschuetz.Random.Generators.MT19937Generator(12),cars, 30000);
-			simul.Step(100000);
-			Console.WriteLine("Done");
+			SlowToStop simul = new SlowToStop(new Troschuetz.Random.Generators.MT19937Generator(12), cars, 80);
+			simul.Step(1000000);
+			File.WriteAllText("MathematicaOutput.txt", simul.Simulate(10, false).Cast<SlowToStop>().GetMathematicaOutput());
 		}
 	}
 }
