@@ -153,5 +153,24 @@ namespace TrafficGenerator
 
 			return this;
 		}
+
+		/// <summary>
+		/// Generates standard initial positons for SlowToStop setup
+		/// </summary>
+		/// <param name="rng">Random number generator</param>
+		/// <param name="roadLength">Length of the road</param>
+		/// <param name="numberOfCars">Number of cars on the road</param>
+		/// <returns>Starting positions of cars</returns>
+		public static uint[] StandardInitilizer(IGenerator rng, uint roadLength, uint numberOfCars)
+		{
+			uint[] positions = new uint[roadLength];
+			for (uint i = 0; i < positions.Length; i++) {
+				positions[i] = i;
+			}
+			positions.Shuffle(rng);
+			var output = new uint[numberOfCars];
+			Array.Copy(positions, output, output.Length);
+			return output;
+		}
 	}
 }

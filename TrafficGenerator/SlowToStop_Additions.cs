@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,6 +89,43 @@ namespace TrafficGenerator
 			output.Append('}');
 
 			return output.ToString();
+		}
+
+		public static Bitmap GetBitMap(this IEnumerable<SlowToStop> input)
+		{
+			return input.GetBitMap(Color.Blue);
+		}
+
+		public static Bitmap GetBitMap(this IEnumerable<SlowToStop> input, Color color)
+		{
+			return input.GetBitMap((a, b, c, d) => color);
+		}
+
+		/// <summary>
+		/// Allows you to choose color based off of uinque identifier, absolute position, velocity, and if it is doing a wait before moving
+		/// </summary>
+		/// <param name="input">input</param>
+		/// <param name="GetColor">Function of  Position in Cars array (UID), position on road, velocity, slow to stop condition</param>
+		/// <returns></returns>
+		public static Bitmap GetBitMap(this IEnumerable<SlowToStop> input, Func<uint, uint, uint, bool, Color> GetColor)
+		{
+			if (!input.Any())
+				throw new Exception("Must have some elements in input");
+			Bitmap output = new Bitmap((int)input.First().RoadLength, input.Count());
+
+
+			{
+				int y = 0;
+				foreach (var item in input) {
+					for (uint i = 0; i < item.Cars.Length; i++) {
+						output.SetPixel((int)item.Cars[i].position, y, GetColor(i, item.Cars[i].position, item.Cars[i].velocity, item.Cars[i].makeVelocityOne));
+					}
+					y++;
+				}
+			}
+
+
+			return output;
 		}
 	}
 }

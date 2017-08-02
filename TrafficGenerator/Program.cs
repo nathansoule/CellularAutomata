@@ -13,11 +13,10 @@ namespace TrafficGenerator
 	{
 		static void Main(string[] args)
 		{
-			var cars = new uint[20];
-			for (var i = 0; i < cars.Length; i++) { cars[i] = (uint)i; }
-			SlowToStop simul = new SlowToStop(new Troschuetz.Random.Generators.MT19937Generator(12), cars, 80);
-			simul.Step(1000000);
-			File.WriteAllText("MathematicaOutput.m", simul.Simulate(100, false).Cast<SlowToStop>().GetMathematicaOutput());
+			var rng = new Troschuetz.Random.Generators.MT19937Generator(12);
+			var cars = SlowToStop.StandardInitilizer(rng, 80, 30);
+			SlowToStop simul = new SlowToStop(rng, cars, 80);
+			simul.Simulate(10000).Cast<SlowToStop>().GetBitMap().Save("Bitmap.bmp");
 		}
 	}
 }
