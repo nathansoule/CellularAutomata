@@ -13,9 +13,10 @@ namespace TrafficGenerator
 	{
 		static void Main(string[] args)
 		{
+			const uint ROADSIZE = 5000;
 			var rng = new Troschuetz.Random.Generators.MT19937Generator(12);
-			var cars = SlowToStop.StandardInitilizer(rng, 80, 30);
-			SlowToStop simul = new SlowToStop(rng, cars, 80);
+			var cars = SlowToStop.StandardInitilizer(rng, ROADSIZE, 30);
+			SlowToStop simul = new SlowToStop(rng, cars, ROADSIZE);
 			simul.Simulate(10000).Cast<SlowToStop>().GetBitMap().Save("Bitmap.bmp");
 		}
 	}
