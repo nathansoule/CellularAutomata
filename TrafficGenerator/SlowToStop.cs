@@ -53,6 +53,7 @@ namespace TrafficGenerator
 			Time = 0;
 			RoadLength = roadLength;
 			cars = new Car[initialCarPositions.Length + 1];
+			Array.Sort(initialCarPositions);
 			for (int i = 0; i < initialCarPositions.Length; i++)
 				cars[i] = new Car {
 					velocity = 1,
@@ -80,7 +81,7 @@ namespace TrafficGenerator
 		public Car[] Cars => cars.Take((int)NumberOfCars).ToArray();
 		public uint RoadLength { get; }
 		public uint NumberOfCars => (uint)cars.Length-1;
-		public double OverallCarDensity => NumberOfCars / (double)RoadLength;
+		public double CarDensity => NumberOfCars / (double)RoadLength;
 
 
 		//Car acting on, distance to next car, next car velocity, time, output
