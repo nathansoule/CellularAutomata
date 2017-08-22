@@ -117,8 +117,9 @@ namespace TrafficGenerator
 			{
 				int y = 0;
 				foreach (var item in input) {
-					for (uint i = 0; i < item.Cars.Length; i++) {
-						output.SetPixel((int)item.Cars[i].position, y, GetColor(i, item.Cars[i].position, item.Cars[i].velocity, item.Cars[i].makeVelocityOne));
+					var cars = item.Cars;
+					for (uint i = 0; i < cars.Length; i++) {
+						output.SetPixel((int)cars[i].position, y, GetColor(i, cars[i].position, cars[i].velocity, cars[i].makeVelocityOne));
 					}
 					y++;
 				}
