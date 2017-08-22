@@ -173,5 +173,10 @@ namespace TrafficGenerator
 			Array.Copy(positions, output, output.Length);
 			return output;
 		}
+
+		public static uint[] StandardInitilizer(IGenerator rng, uint roadLength, double ratioOfCars)
+		{
+			return StandardInitilizer(rng, roadLength, (uint)(ratioOfCars * roadLength));
+		}
 	}
 }

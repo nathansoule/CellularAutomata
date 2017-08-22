@@ -11,7 +11,7 @@ namespace TrafficGenerator
 	/// <summary>
 	/// Base class for all cellular automata
 	/// </summary>
-	public abstract class CellularAutomata : ICloneable
+	public abstract class CellularAutomata : ICloneable, IEnumerable<CellularAutomata>
 	{
 		/// <summary>
 		/// Iterates one step and returns new state, may modify self based on implementation
@@ -78,7 +78,19 @@ namespace TrafficGenerator
 		/// <returns>A copy of the Cellular Automata as an object</returns>
 		public abstract object Clone();
 
-		
+		public IEnumerator<CellularAutomata> GetEnumerator()
+		{
+			for (CellularAutomata current = (CellularAutomata)Clone();; current.Step()) {
+				yield return current;
+			}	
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return GetEnumerator();
+		}
+
+
 		/// <summary>
 		/// Enum to describe how the Step function modifies the CellularAutomata
 		/// </summary>

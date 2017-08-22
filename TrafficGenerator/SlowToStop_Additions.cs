@@ -127,5 +127,63 @@ namespace TrafficGenerator
 
 			return output;
 		}
+
+		public static void GetJams(this IEnumerable<SlowToStop> source, uint maxJamSpeed = 0)
+		{ 
+			
+		}
+
+		public struct Jam
+		{
+			JamInstant initial;
+			
+		}
+
+		public static List<JamInstant> GetJams(this SlowToStop source, uint maxJamSpeed = 0)
+		{
+			var CarArray = source.Cars;
+			List<JamInstant> output = new List<JamInstant>();
+
+			//create jams
+			for(uint i = 0; i < CarArray.Length;) {
+				uint start, length;
+				for (; i < CarArray.Length && CarArray[i].velocity > maxJamSpeed; i++) ;
+				start = i;
+				for (; i < CarArray.Length && CarArray[i].velocity <= maxJamSpeed; i++) ;
+				length = i - start;
+				output.Add(new JamInstant(start, length));
+			}
+
+			//Combine jam if loops around edge of road
+			if (output.Count > 1) {
+				if (output.Last().Last == CarArray.Length - 1 && output.First().First == 0) {
+					output[0].Prefix(output.Last());
+					output.RemoveAt(output.Count - 1);
+				}
+			}
+
+			return output;
+		}
+
+		public struct JamInstant
+		{
+			public JamInstant(uint start, uint length)
+			{
+				First = start;
+				Length = length;
+			}
+			public uint First { get; set; }
+			public uint Length { get; set; }
+			public uint Last => First + Length - 1;
+			public void Prefix(JamInstant prefix)
+			{
+				Length += prefix.Length;
+				First = prefix.First;
+			}
+			public void Suffix(JamInstant suffix)
+			{
+				Length += suffix.Length;
+			}
+		}
 	}
 }
