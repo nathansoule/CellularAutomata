@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Benji;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -155,6 +156,18 @@ namespace TrafficGenerator
 			return this;
 		}
 
+		public int IndexOfLastCar()
+		{
+			//there is a more efficent way...
+			//implement when I feel like it?
+			int index = 0;
+			for (int i = 1; i < NumberOfCars; i++)
+				if (cars[i].position > cars[index].position)
+					index = i;
+			return index;
+
+		}
+
 		/// <summary>
 		/// Generates standard initial positons for SlowToStop setup
 		/// </summary>
@@ -177,6 +190,29 @@ namespace TrafficGenerator
 		public static uint[] StandardInitilizer(IGenerator rng, uint roadLength, double ratioOfCars)
 		{
 			return StandardInitilizer(rng, roadLength, (uint)(ratioOfCars * roadLength));
+		}
+
+		public static double OptimalDensity(uint roadLength, IGenerator rng, uint steps = 100000, uint throwAwaySteps = 1000, uint simulations = 1)
+		{
+			if (roadLength < 2) {
+				throw new Exception($"Have a bigger road length than 2 please, {roadLength} is to small.");
+			}
+
+			//generate road
+			Func<uint, uint> f = (uint cars) => {
+				//why not work?
+				SlowToStop road = new SlowToStop(rng, StandardInitilizer(rng, roadLength, cars), roadLength);
+				road.Step(throwAwaySteps);
+
+				return road.Take((int)steps).Cast<SlowToStop>().PasspointMeasure();
+			};
+
+			//for (uint i = 2; i < roadLength; i++) {
+			//	Console.WriteLine($"{i}\t:\t{f(i)}");
+			//}
+
+			//do binary search, start with 
+			return f.BinarySearchForMaxima(2, roadLength).Key;
 		}
 	}
 }

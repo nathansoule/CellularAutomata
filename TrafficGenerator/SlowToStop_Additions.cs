@@ -129,6 +129,37 @@ namespace TrafficGenerator
 			return output;
 		}
 
+		public static uint PasspointMeasure(this IEnumerable<SlowToStop> source)
+		{
+			uint count = 0;
+			var lastCar = source.First().IndexOfLastCar();
+			foreach (var item in source) {
+				var CarArray = item.Cars;
+				while (CarArray[lastCar].position + CarArray[lastCar].velocity > item.RoadLength) {
+					count++;
+					lastCar += CarArray.Length - 1;
+					lastCar %= CarArray.Length;
+				}
+			}
+			return count;
+		}
+
+		public static uint TotalVelocityMeasure(this IEnumerable<SlowToStop> source)
+		{
+			uint sum = 0;
+			foreach (var item in source)
+				sum += item.TotalVelocityMeasure();
+			return sum;
+		}
+
+		public static uint TotalVelocityMeasure(this SlowToStop source)
+		{
+			uint sum = 0;
+			foreach (var item in source.Cars)
+				sum += item.velocity;
+			return sum;
+		}
+
 		public static void GetJams(this IEnumerable<SlowToStop> source, uint maxJamSpeed = 0)
 		{ 
 			
@@ -140,7 +171,7 @@ namespace TrafficGenerator
 			
 		}
 
-		public static List<JamInstant> GetJams(this SlowToStop source, uint maxJamSpeed = 0)
+		public static List<JamInstant> GetJams(this SlowToStop source)
 		{
 			var CarArray = source.Cars;
 			List<JamInstant> output = new List<JamInstant>();
@@ -148,9 +179,9 @@ namespace TrafficGenerator
 			//create jams
 			for(uint i = 0; i < CarArray.Length;) {
 				uint start, length;
-				for (; i < CarArray.Length && CarArray[i].velocity > maxJamSpeed; i++) ;
+				for (; i < CarArray.Length && CarArray[i].velocity > 0; i++) ;
 				start = i;
-				for (; i < CarArray.Length && CarArray[i].velocity <= maxJamSpeed; i++) ;
+				for (; i < CarArray.Length && CarArray[i].velocity == 0; i++) ;
 				length = i - start;
 				output.Add(new JamInstant(start, length));
 			}
