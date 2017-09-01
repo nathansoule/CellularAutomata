@@ -1,11 +1,13 @@
 ﻿using Benji;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Troschuetz.Random;
 using Troschuetz.Random.Distributions.Continuous;
+using static TrafficGenerator.Program;
 
 namespace TrafficGenerator
 {
@@ -14,10 +16,6 @@ namespace TrafficGenerator
 	/// </summary>
 	public class SlowToStop : CellularAutomata
 	{
-		/// <summary>
-		/// random number generator for the automata
-		/// </summary>
-		protected ContinuousUniformDistribution rand;
 
 		/// <summary>
 		/// Copy constructor, makes complete clone
@@ -31,7 +29,6 @@ namespace TrafficGenerator
 			FaultProbability = other.FaultProbability;
 			SlowProbability = other.SlowProbability;
 			Time = other.Time;
-			rand = other.rand;
 		}
 
 		/// <summary>
@@ -43,14 +40,13 @@ namespace TrafficGenerator
 		/// <param name="maxVelocity">The maximum velocity for a car</param>
 		/// <param name="faultProbability">The probability a car randomly slows down by 1</param>
 		/// <param name="slowProbability">The probability a stopped car waits a step before speeding up</param>
-		public SlowToStop(IGenerator randomNumberGenerator, uint[] initialCarPositions, uint roadLength, uint maxVelocity = 5, double faultProbability = .1, double slowProbability = .2)
+		public SlowToStop(uint[] initialCarPositions, uint roadLength, uint maxVelocity = 5, double faultProbability = .1, double slowProbability = .2)
 		{
 			// add checks for safty
 			//-Two cars in same location
 			//-Car off road
 			//-Less then 2 cars
 			MaxVelocity = maxVelocity;
-			rand = new ContinuousUniformDistribution(randomNumberGenerator, 0, 1);
 			Time = 0;
 			RoadLength = roadLength;
 			cars = new Car[initialCarPositions.Length + 1];
@@ -120,7 +116,7 @@ namespace TrafficGenerator
 					cars[i].position %= RoadLength;
 					continue;
 				} else if (cars[i].velocity == 0 && distance > 1) {
-					if (rand.NextDouble() < SlowProbability(cars[i], distance, nextVelocity, Time)) {
+					if (Rand.NextDouble() < SlowProbability(cars[i], distance, nextVelocity, Time)) {
 						cars[i].makeVelocityOne = true;
 					} else {
 						cars[i].velocity = 1;
@@ -146,7 +142,7 @@ namespace TrafficGenerator
 				}
 
 				if (cars[i].velocity > 0)
-					if (rand.NextDouble() < FaultProbability(cars[i], distance, nextVelocity, Time))
+					if (Rand.NextDouble() < FaultProbability(cars[i], distance, nextVelocity, Time))
 						cars[i].velocity--;
 
 				cars[i].position += cars[i].velocity;
@@ -171,28 +167,27 @@ namespace TrafficGenerator
 		/// <summary>
 		/// Generates standard initial positons for SlowToStop setup
 		/// </summary>
-		/// <param name="rng">Random number generator</param>
 		/// <param name="roadLength">Length of the road</param>
 		/// <param name="numberOfCars">Number of cars on the road</param>
 		/// <returns>Starting positions of cars</returns>
-		public static uint[] StandardInitilizer(IGenerator rng, uint roadLength, uint numberOfCars)
+		public static uint[] StandardInitilizer(uint roadLength, uint numberOfCars)
 		{
 			uint[] positions = new uint[roadLength];
 			for (uint i = 0; i < positions.Length; i++) {
 				positions[i] = i;
 			}
-			positions.Shuffle(rng);
+			positions.Shuffle();
 			var output = new uint[numberOfCars];
 			Array.Copy(positions, output, output.Length);
 			return output;
 		}
 
-		public static uint[] StandardInitilizer(IGenerator rng, uint roadLength, double ratioOfCars)
+		public static uint[] StandardInitilizer(uint roadLength, double ratioOfCars)
 		{
-			return StandardInitilizer(rng, roadLength, (uint)(ratioOfCars * roadLength));
+			return StandardInitilizer(roadLength, (uint)(ratioOfCars * roadLength));
 		}
 
-		public static double OptimalDensity(uint roadLength, IGenerator rng, uint steps = 100000, uint throwAwaySteps = 1000, uint simulations = 1)
+		public static double OptimalDensity(uint roadLength, Func<uint, uint, uint[]> initializer, Func<IEnumerable<SlowToStop>, uint> measure, uint steps = 5000, uint throwAwaySteps = 1000, uint simulations = 100)
 		{
 			if (roadLength < 2) {
 				throw new Exception($"Have a bigger road length than 2 please, {roadLength} is to small.");
@@ -200,19 +195,38 @@ namespace TrafficGenerator
 
 			//generate road
 			Func<uint, uint> f = (uint cars) => {
-				//why not work?
-				SlowToStop road = new SlowToStop(rng, StandardInitilizer(rng, roadLength, cars), roadLength);
-				road.Step(throwAwaySteps);
-
-				return road.Take((int)steps).Cast<SlowToStop>().PasspointMeasure();
+				uint sum = 0;
+				for (uint i = 0; i < simulations; i++)
+					sum += GetThrouputMeasure(cars, roadLength, steps, throwAwaySteps, StandardInitilizer, SlowToStop_Additions.PasspointMeasure);
+				return sum;
 			};
 
-			//for (uint i = 2; i < roadLength; i++) {
-			//	Console.WriteLine($"{i}\t:\t{f(i)}");
-			//}
+			Func<uint, uint> parallelF = (uint cars) => {
+				ConcurrentBag<int> results = new ConcurrentBag<int>();
+				Parallel.For(0, (int)simulations, (int i) => {
+					results.Add((int)GetThrouputMeasure(cars, roadLength, steps, throwAwaySteps, StandardInitilizer, SlowToStop_Additions.PasspointMeasure));
+				});
+				return (uint)results.Sum();
+			};
 
 			//do binary search, start with 
-			return f.BinarySearchForMaxima(2, roadLength).Key;
+			var output = f.BinarySearchForMaxima(2, roadLength).Key;
+
+
+			simulations = 1;
+			for (uint i = 2; i < roadLength; i++)
+				Console.WriteLine($"{i}\t:\t{f(i)}");
+
+
+			return output;
+		}
+
+		public static uint GetThrouputMeasure(uint cars, uint roadLength, uint steps, uint throwAwaySteps, Func<uint,uint,uint[]> initializer, Func<IEnumerable<SlowToStop>, uint> measure)
+		{
+			SlowToStop road = new SlowToStop(initializer(roadLength, cars), roadLength);
+			road.Step(throwAwaySteps);
+
+			return measure(road.Take((int)steps).Cast<SlowToStop>());
 		}
 	}
 }

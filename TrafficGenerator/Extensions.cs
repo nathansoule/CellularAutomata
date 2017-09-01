@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Troschuetz.Random;
+using static TrafficGenerator.Program;
 
 namespace TrafficGenerator
 {
@@ -32,10 +33,10 @@ namespace TrafficGenerator
 		/// <param name="input">Array to be shuffled</param>
 		/// <param name="rng">Random number generator</param>
 		/// <returns>the input array shuffled</returns>
-		public static T[] Shuffle<T>(this T[] input, IGenerator rng)
+		public static T[] Shuffle<T>(this T[] input)
 		{
 			for(int i = 0; i < input.Length - 1; i++) {
-				input.Swap(i, rng.Next(i, input.Length));
+				input.Swap(i, Rand.Next(i, input.Length));
 			}
 			return input;
 		}

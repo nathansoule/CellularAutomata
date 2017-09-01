@@ -18,13 +18,12 @@ namespace TrafficGenerator
 		/// <summary>
 		/// Constructor, using constant probabilities
 		/// </summary>
-		/// <param name="randomNumberGenerator">Random number generator</param>
 		/// <param name="initialRoadState">Array of cars representing the initial road state. The internal data will be instansiated as a copy of this Array.</param>
 		/// <param name="roadLength">Number of cells the road is long, or how large the circular road is.</param>
 		/// <param name="maxVelocity">The maximum velocity for a car</param>
 		/// <param name="faultProbability">The probability a car randomly slows down by 1</param>
 		/// <param name="slowProbability">The probability a stopped car waits a step before speeding up</param>
-		public SlowToStop_InPlace(IGenerator randomNumberGenerator, uint[] initialRoadState, uint roadLength, uint maxVelocity = 5, double faultProbability = .1, double slowProbability = .2) : base(randomNumberGenerator, initialRoadState, roadLength, maxVelocity, faultProbability, slowProbability) { }
+		public SlowToStop_InPlace(uint[] initialRoadState, uint roadLength, uint maxVelocity = 5, double faultProbability = .1, double slowProbability = .2) : base(initialRoadState, roadLength, maxVelocity, faultProbability, slowProbability) { }
 
 		public override object Clone()
 		{

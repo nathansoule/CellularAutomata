@@ -9,14 +9,18 @@ using System.Collections;
 using System.IO;
 using Troschuetz.Random;
 using Benji;
+using System.Threading;
 
 namespace TrafficGenerator
 {
-	class Program
+	static class Program
 	{
+		private static ThreadLocal<IGenerator> rng = new ThreadLocal<IGenerator>(() => new Troschuetz.Random.Generators.XorShift128Generator());
+		public static IGenerator Rand => rng.Value;
+
 		static void Main(string[] args)
 		{
-			Console.WriteLine(SlowToStop.OptimalDensity(1000, new Troschuetz.Random.Generators.XorShift128Generator()));
+			Console.WriteLine(SlowToStop.OptimalDensity(1000));
 		}
 	}
 }
