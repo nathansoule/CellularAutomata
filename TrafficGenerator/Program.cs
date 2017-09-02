@@ -10,17 +10,26 @@ using System.IO;
 using Troschuetz.Random;
 using Benji;
 using System.Threading;
+using System.Diagnostics;
 
 namespace TrafficGenerator
 {
 	static class Program
 	{
-		private static ThreadLocal<IGenerator> rng = new ThreadLocal<IGenerator>(() => new Troschuetz.Random.Generators.XorShift128Generator());
-		public static IGenerator Rand => rng.Value;
+		private static ThreadLocal<IGenerator> rng = new ThreadLocal<IGenerator>(() => new Troschuetz.Random.Generators.XorShift128Generator(12));
+		public static IGenerator Rand {
+			get { return rng.Value; }
+			//set { rng.Value = value; }
+		}
 
 		static void Main(string[] args)
 		{
-			Console.WriteLine(SlowToStop.OptimalDensity(1000));
+			const uint numb = 1000, steps = 10000, dump = 100, simul = 100000;
+			Stopwatch timer = new Stopwatch();
+			timer.Start();
+			Console.WriteLine(SlowToStop.OptimalDensity(numb, SlowToStop.StandardInitilizer, SlowToStop_Additions.PasspointMeasure, steps, dump, simul));
+			timer.Stop();
+			Console.WriteLine("Time 1: " + timer.Elapsed);
 		}
 	}
 }

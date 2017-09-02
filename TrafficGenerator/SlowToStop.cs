@@ -193,15 +193,16 @@ namespace TrafficGenerator
 				throw new Exception($"Have a bigger road length than 2 please, {roadLength} is to small.");
 			}
 
-			//generate road
-			Func<uint, uint> f = (uint cars) => {
-				uint sum = 0;
-				for (uint i = 0; i < simulations; i++)
-					sum += GetThrouputMeasure(cars, roadLength, steps, throwAwaySteps, StandardInitilizer, SlowToStop_Additions.PasspointMeasure);
-				return sum;
-			};
+			//serial version
+			//Func<uint, uint> f = (uint cars) => {
+			//	uint sum = 0;
+			//	for (uint i = 0; i < simulations; i++)
+			//		sum += GetThrouputMeasure(cars, roadLength, steps, throwAwaySteps, StandardInitilizer, SlowToStop_Additions.PasspointMeasure);
+			//	return sum;
+			//};
 
-			Func<uint, uint> parallelF = (uint cars) => {
+			//parallel version
+			Func<uint, uint> f = (uint cars) => {
 				ConcurrentBag<int> results = new ConcurrentBag<int>();
 				Parallel.For(0, (int)simulations, (int i) => {
 					results.Add((int)GetThrouputMeasure(cars, roadLength, steps, throwAwaySteps, StandardInitilizer, SlowToStop_Additions.PasspointMeasure));
@@ -213,13 +214,9 @@ namespace TrafficGenerator
 			var output = f.BinarySearchForMaxima(2, roadLength).Key;
 
 
-			simulations = 1;
-			for (uint i = 2; i < roadLength; i++)
-				Console.WriteLine($"{i}\t:\t{f(i)}");
-
-
 			return output;
 		}
+
 
 		public static uint GetThrouputMeasure(uint cars, uint roadLength, uint steps, uint throwAwaySteps, Func<uint,uint,uint[]> initializer, Func<IEnumerable<SlowToStop>, uint> measure)
 		{
